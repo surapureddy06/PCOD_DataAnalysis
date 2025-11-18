@@ -1,0 +1,160 @@
+---
+title: "PCOD"
+author: "Sathya"
+date: "2024-11-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+[Link to dataset](https://www.kaggle.com/datasets/cm037divya/pcos-dataset/data)
+
+```{r}
+# Assuming the dataset is named pcod_data
+data <- read.csv("C:/Users/DELL/Downloads/archive (21)/PCOS_extended_dataset.csv")
+
+# Summary statistics
+summary(data)
+
+# Check the dimensions of the dataset
+cat("Number of Observations:", nrow(data), "\n")
+cat("Number of Variables:", ncol(data), "\n")
+
+```
+
+##These are my few selected variables:
+
+```{r}
+selected_columns <- c("PCOS..Y.N.","Age.","BMI","LH.mIU.mL.", "TSH..mIU.L.","BP._Systolic..mmHg.","BP._Diastolic..mmHg.","Fast.food..Y.N","Reg.Exercise.Y.N.")
+```
+
+##Brief description: ##PCOS(Y/N) : Identify the pCOS present or not.
+
+##Age : Used for calculation of BMI .
+
+##BMI : A key physiological factor that is commonly associated with the development of PCOS, particularly due to its role in obesity and hormonal imbalances.
+
+##LH: High LH levels, particularly in relation to FSH, are a hallmark of PCOS and can lead to ovulatory dysfunction.
+
+##TSH: Imbalances in TSH, especially hypothyroidism, can exacerbate PCOS symptoms like irregular periods and weight gain.
+
+##BP systolic:High systolic blood pressure is often associated with Polycystic Ovary Syndrome (PCOS) due to underlying metabolic disturbances, such as insulin resistance and hormonal imbalances.
+
+## Bp Diastolic: High diastolic blood pressure is often associated with Polycystic Ovary Syndrome (PCOS) due to underlying metabolic disturbances, such as insulin resistance and hormonal imbalances.
+
+##Fast food : Increased fast food associated with increase in PCOD.
+
+##Regular exercise : Regular exercise can decrease the risk of PCOD.
+
+## 
+
+```{r}
+hist(data$BMI, 
+     main = "BMI Distribution", 
+     xlab = "BMI", 
+     ylab = "Frequency", 
+     col = "lightblue", 
+     border = "black")
+```
+
+##The plot shows a roughly normal distribution of BMI, with a peak around the healthy range. A slight rightward skew suggests potential outliers with high BMI values.
+
+```{r}
+hist(data$LH.mIU.mL., 
+     main = "LH Distribution", 
+     xlab = "LH", 
+     ylab = "Frequency", 
+     col = "pink", 
+     border = "black")
+```
+
+## The plot shows a distribution of LH (luteinizing hormone) levels, with a single peak around 500. This suggests that a majority of individuals in the dataset have LH levels within this range.
+
+```{r}
+hist(data$TSH..mIU.L., 
+     main = "TSH Distribution", 
+     xlab = "TSH", 
+     ylab = "Frequency", 
+     col = "orange", 
+     border = "black")
+
+```
+
+##The plot shows a distribution of TSH (Thyroid-Stimulating Hormone) levels, with a single peak around 5. This suggests that a majority of individuals in the dataset have TSH levels within this range.
+
+```{r}
+hist(data$BP._Systolic..mmHg., 
+     main = "BP Systolic", 
+     xlab = "BP(sys)", 
+     ylab = "Frequency", 
+     col = "red", 
+     border = "black")
+```
+
+##The plot shows a distribution of Systolic Blood Pressure (BP) values, with a peak around 100. This suggests that a majority of individuals in the dataset have BP values within this range.
+
+```{r}
+hist(data$BP._Diastolic..mmHg., 
+     main = "BP Diastolic", 
+     xlab = "BP(dia)", 
+     ylab = "Frequency", 
+     col = "red", 
+     border = "black")
+```
+
+##The plot shows a distribution of Diastolic Blood Pressure (BP) values, with a peak around 80. This suggests that a majority of individuals in the dataset have BP values within this range.
+
+```{r}
+boxplot(data$BMI ~ data$ Age., 
+        main = "BMI across different age groups", 
+        xlab = "BMI", 
+        ylab = "Age.", 
+        col = c("lightgreen", "lightcoral"))
+```
+
+##The plot shows the distribution of BMI across different age groups. The boxplots display the median, quartiles, and potential outliers for each age group. There appears to be an increasing trend in BMI with age, with older age groups showing higher BMI values on average.
+
+```{r}
+boxplot(data$PCOS..Y.N. ~ data$BMI, 
+        main = "BMI across various cases of PCOS", 
+        xlab = "PCOS", 
+        ylab = "BMI", 
+        col = c("lightgreen", "lightcoral"))
+```
+
+##The plot shows the distribution of BMI across different cases of PCOS. The boxplots display the median, quartiles, and potential outliers for each PCOS case. There appears to be no significant difference in BMI across the various PCOS cases.
+
+```{r}
+plot(data$Age, data$BMI, 
+     main = "Relationship between Age and BMI", 
+     xlab = "Age (years)", 
+     ylab = "BMI", 
+     col = "blue", 
+     pch = 16)
+```
+
+##The plot shows the relationship between age and BMI. The x-axis represents age, and the y-axis represents BMI. Each dot represents an individual's age and BMI. There appears to be a slight positive correlation between age and BMI, indicating that BMI tends to increase with age. However, there is also significant variability, suggesting that age alone does not fully explain BMI variation.
+
+```{r}
+barplot(table(data$Fast.food..Y.N.), 
+        main = " Effect of Fast food consumption", 
+        xlab = "Fast food", 
+        ylab = "Frequency", 
+        col = "purple", 
+        border = "black")
+```
+
+##The plot shows the effect of fast food consumption. The x-axis represents fast food consumption (yes or no), and the y-axis represents frequency. The bar plot shows that a majority of individuals in the dataset consume fast food.
+
+```{r}
+barplot(table(data$Reg.Exercise.Y.N.), 
+        main = " Effect of Regular exercise", 
+        xlab = "regular exercise", 
+        ylab = "Frequency", 
+        col = "yellow", 
+        border = "black")
+```
+
+##The plot shows the effect of regular exercise. The x-axis represents regular exercise (yes or no), and the y-axis represents frequency. The bar plot shows that a majority of individuals in the dataset do not engage in regular exercise.
