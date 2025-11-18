@@ -1,0 +1,397 @@
+---
+title: "PCOS dataset analysis"
+author: "Sathya"
+date: "2024-11-13"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Loading the necessary libraries
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(ggplot2)
+library(broom)
+library(stats)
+```
+
+## Loading the data
+```{r}
+# Corrected path to load the dataset
+data <- read.csv("C:/Users/DELL/Downloads/archive (21)/PCOS_extended_dataset.csv")
+head(data)
+```
+##Dataset Description: The dataset contains information on 2,000 individuals with 44 columns, covering a range of factors like demographics, symptoms, hormonal levels, lifestyle habits, and medical measurements. It's particularly focused on features that could correlate with or contribute to the diagnosis of PCOS (Polycystic Ovary Syndrome).
+## Each variable represents
+1. Sl. No: Serial number (Integer)
+2. Patient File No.: Unique identifier for the patient's file (String)
+3. PCOS (Y/N): Indicates if the patient has Polycystic Ovary Syndrome (yes/no) (String)
+4. Age (yrs): Patient's age in years (Integer)
+5. Weight (Kg): Patient's weight in kilograms (Float)
+6. Height(Cm): Patient's height in centimeters (Float)
+7. BMI: Body Mass Index (Float)
+8. Blood Group: Patient's blood group (String)
+9. Pulse rate(bpm): Patient's pulse rate in beats per minute (Integer)
+10. RR (breaths/min): Respiratory rate in breaths per minute (Integer)
+11. Hb(g/dl): Hemoglobin level in grams per deciliter (Float)
+12. Cycle(R/I): Indicates if the patient has a regular (R) or irregular (I) menstrual cycle (String)
+13. Cycle length(days): Length of the patient's menstrual cycle in days (Integer)
+14. Marraige Status (Yrs): Number of years the patient has been married (Integer)
+15. Pregnant(Y/N): Indicates if the patient is currently pregnant (yes/no) (String)
+16. No. of abortions: Number of previous abortions the patient has had (Integer)
+17. I beta-HCG(mIU/mL): First beta-HCG (human chorionic gonadotropin) measurement in milli-International Units per milliliter (Float)
+18. II beta-HCG(mIU/mL): Second beta-HCG measurement in milli-International Units per milliliter (Float)
+19. FSH(mIU/mL): Follicle-Stimulating Hormone level in milli-International Units per milliliter (Float)
+20. LH(mIU/mL): Luteinizing Hormone level in milli-International Units per milliliter (Float)
+21. FSH/LH: Ratio of Follicle-Stimulating Hormone to Luteinizing Hormone (Float)
+22. Hip(inch): Patient's hip circumference in inches (Float)
+23. Waist(inch): Patient's waist circumference in inches (Float)
+24. Waist:Hip Ratio: Ratio of waist to hip circumference (Float)
+25. TSH (mIU/L): Thyroid-Stimulating Hormone level in milli-International Units per liter (Float)
+26. AMH(ng/mL): Anti-Müllerian Hormone level in nanograms per milliliter (Float)
+27. PRL(ng/mL): Prolactin level in nanograms per milliliter (Float)
+28. Vit D3 (ng/mL): Vitamin D3 level in nanograms per milliliter (Float)
+29. PRG(ng/mL): Progesterone level in nanograms per milliliter (Float)
+30. RBS(mg/dl): Random Blood Sugar in milligrams per deciliter (Integer)
+31. Weight gain(Y/N): Indicates if the patient has experienced recent weight gain (yes/no) (String)
+32. hair growth(Y/N): Indicates if the patient has experienced abnormal hair growth (yes/no) (String)
+33. Skin darkening (Y/N): Indicates if the patient has experienced skin darkening (yes/no) (String)
+34. Hair loss(Y/N): Indicates if the patient has experienced hair loss (yes/no) (String)
+35. Pimples(Y/N): Indicates if the patient has experienced pimples or acne (yes/no) (String)
+36. Fast food (Y/N): Indicates if the patient consumes fast food regularly (yes/no) (String)
+37. Reg.Exercise(Y/N): Indicates if the patient exercises regularly (yes/no) (String)
+38. BP *Systolic (mmHg): Systolic blood pressure in millimeters of mercury (Float)
+39. BP *Diastolic (mmHg): Diastolic blood pressure in millimeters of mercury (Float)
+40. Follicle No. (L): Number of follicles in the left ovary (Integer)
+41. Follicle No. (R): Number of follicles in the right ovary (Integer)
+42. Avg. F size (L) (mm): Average size of follicles in the left ovary in millimeters (Float)
+43. Avg. F size (R) (mm): Average size of follicles in the right ovary in millimeters (Float)
+44. Endometrium (mm): Endometrium thickness in millimeters (Float)
+
+## Checking missing values
+```{r}
+# Check for missing values in each column
+missing_values <- sapply(data, function(x) sum(is.na(x)))
+print(missing_values)
+```
+## So,in my dataset there are 3 missing values in the column Marriage Status(Yrs) which is an integer . So, as the missing values are only 3 I will just drop that column  from the dataset as it won't effect my hypothesis much.
+
+
+```{r}
+# Drop columns with any missing values
+data_cleaned <- data[, colSums(is.na(data)) == 0]
+
+# Check the result by displaying the first few rows
+head(data_cleaned)
+
+```
+
+##Rechecking the missing values
+```{r}
+missing_values <- sapply(data_cleaned, function(x) sum(is.na(x)))
+print(missing_values)
+head(data_cleaned)
+```
+
+
+##Variable Selection
+Dependent (Outcome) Variable:
+PCOS (Y/N): The outcome variable will be whether or not a woman has been diagnosed with Polycystic Ovary Syndrome (PCOS). This is a binary variable with values of "Y" (Yes, diagnosed with PCOS) or "N" (No, not diagnosed with PCOS).
+
+Justification:
+
+PCOS is the condition we are trying to understand and predict. Therefore, it makes sense to use the presence or absence of PCOS as the dependent variable. The focus of this research is to investigate how physiological and lifestyle factors influence the likelihood of developing PCOS. Since the data includes both continuous and categorical predictors (such as BMI, blood pressure,hormones and exercise habits), the binary nature of the dependent variable aligns well with the methods we plan to use, like logistic regression.
+Independent (Predictor) Variables:
+BMI (Body Mass Index)
+
+Justification: BMI is a key physiological factor that is strongly associated with the risk of developing PCOS. Women with higher BMI are more likely to develop metabolic issues such as insulin resistance, which can contribute to the development of PCOS. Research has shown that obesity or being overweight is a major risk factor for PCOS. This continuous variable will help assess how different levels of BMI impact the likelihood of having PCOS.
+Reg. Exercise (Y/N)
+
+Justification: Regular exercise is a lifestyle factor that can significantly influence the risk of developing PCOS. Physical activity helps in maintaining a healthy weight, improving insulin sensitivity, and regulating hormone levels, all of which are important for managing PCOS. Women who engage in regular exercise are likely to have a reduced risk of PCOS compared to those who do not. This binary variable is relevant as a predictor because it reflects a key lifestyle choice that can influence health outcomes.
+Fast Food (Y/N)
+
+Justification: The consumption of fast food is another important lifestyle factor linked to PCOS. Diets high in processed foods and unhealthy fats are often associated with weight gain, increased insulin resistance, and hormonal imbalances—key factors in the development of PCOS. This binary variable will allow us to examine how the consumption of fast food affects the likelihood of developing PCOS.
+
+BMI (Body Mass Index): A key physiological factor that is commonly associated with the development of PCOS, particularly due to its role in obesity and hormonal imbalances.
+
+Blood Pressure (Systolic and Diastolic): Elevated blood pressure can be a consequence of metabolic disturbances associated with PCOS.
+
+Hormonal Levels:
+Beta-hCG: Elevated beta-hCG levels can indicate ovarian dysfunction and are sometimes elevated in women with PCOS.
+
+FSH: Low FSH levels are often found in PCOS due to disrupted ovarian response, contributing to anovulation.
+
+LH: High LH levels, particularly in relation to FSH, are a hallmark of PCOS and can lead to ovulatory dysfunction.
+
+TSH: Imbalances in TSH, especially hypothyroidism, can exacerbate PCOS symptoms like irregular periods and weight gain.
+
+AMH: High AMH levels are common in PCOS and reflect an increased number of follicles and ovarian dysfunction.
+
+PRL: Elevated prolactin (PRL) can disrupt menstrual cycles and ovulation in women with PCOS.
+
+PRG: Low progesterone levels in PCOS are often due to anovulation, contributing to irregular menstrual cycles.
+
+RBS: Elevated random blood sugar (RBS) levels are indicative of insulin resistance, which is common in women with PCOS.
+
+Rationale for the Selection of Variables:
+
+Relevance to PCOS: Each of the selected predictor variables (BMI, blood pressure, hormones,exercise, and fast food consumption) is known to influence the risk factors for PCOS. BMI is a crucial physiological factor, while exercise and diet are key lifestyle factors that are modifiable, meaning they could be targeted for intervention and prevention.
+
+Hypothesis Testing: These predictors align with the hypothesis that unhealthy lifestyles (e.g., low exercise, poor diet) and physical imbalances (e.g., high BMI,blood oressure, hormone imbalances) increase the likelihood of developing PCOS. We will assess whether higher BMI, poor diet, and lack of exercise correlate with the presence of PCOS.
+
+By using these variables, we can assess not only the individual effects of these factors but also the interaction between lifestyle and physiological factors in the development of PCOS.
+
+# Conversion of char to numeric
+
+```{r}
+# Selecting the columns to convert
+selected_columns <- c("AMH.ng.mL.","II....beta.HCG.mIU.mL.")
+
+# Converting each of these columns to numeric
+for (col in selected_columns) {
+  data_cleaned[[col]] <- as.numeric(data_cleaned[[col]])
+}
+
+# Check the conversion by viewing the first few rows of the converted columns
+head(data_cleaned[selected_columns])
+```
+#Summary Statistcs
+```{r}
+# Define the columns you want to calculate statistics for
+selected_columns <- c("PCOS..Y.N.", "BMI", "I...beta.HCG.mIU.mL.","FSH.LH","LH.mIU.mL.","TSH..mIU.L.","PRL.ng.mL.","PRG.ng.mL.","RBS.mg.dl.","Fast.food..Y.N.","Reg.Exercise.Y.N.","BP._Systolic..mmHg.","BP._Diastolic..mmHg.","AMH.ng.mL.","II....beta.HCG.mIU.mL.")
+
+# Calculate the summary statistics for each selected column
+for (col in selected_columns) {
+  cat("Summary statistics for", col, ":\n")
+  cat("Mean:", mean(data_cleaned[[col]], na.rm = TRUE), "\n")
+  cat("Median:", median(data_cleaned[[col]], na.rm = TRUE), "\n")
+  cat("Range:", range(data_cleaned[[col]], na.rm = TRUE), "\n")
+  cat("Standard Deviation:", sd(data_cleaned[[col]], na.rm = TRUE), "\n")
+  cat("\n")  # Add a newline for readability
+}
+```
+##Visualizations
+```{r}
+# List of continuous columns for distribution
+continuous_columns <- c("BMI", "I...beta.HCG.mIU.mL.", "FSH.LH", "LH.mIU.mL.", "TSH..mIU.L.", 
+                        "PRL.ng.mL.", "PRG.ng.mL.", "RBS.mg.dl.", "BP._Systolic..mmHg.", 
+                        "BP._Diastolic..mmHg.", "AMH.ng.mL.", "II....beta.HCG.mIU.mL.")
+
+# Create histograms for each continuous variable
+for (col in continuous_columns) {
+  print(
+    ggplot(data_cleaned, aes_string(x = col)) +
+      geom_histogram(binwidth = 5, fill = "skyblue", color = "black") +
+      labs(title = paste("Distribution of", col), x = col, y = "Frequency") +
+      theme_minimal()
+  )
+}
+```
+# List of categorical columns for distribution
+```{r}
+categorical_columns <- c("Fast.food..Y.N.", "Reg.Exercise.Y.N.", "PCOS..Y.N.")
+
+# Create bar plots for each categorical variable
+for (col in categorical_columns) {
+  print(
+    ggplot(data_cleaned, aes_string(x = col, fill = col)) +
+      geom_bar() +
+      labs(title = paste("Distribution of", col), x = col, y = "Count") +
+      theme_minimal() +
+      scale_fill_manual(values = c("tomato", "skyblue"))
+  )
+}
+```
+
+```{r}
+# Create box plots for each continuous variable against the dependent variable
+for (col in continuous_columns) {
+  print(
+    ggplot(data_cleaned, aes_string(x = "PCOS..Y.N.", y = col, fill = "PCOS..Y.N.")) +
+      geom_boxplot() +
+      labs(title = paste("Box plot of", col, "by PCOS"), x = "PCOS (Y/N)", y = col) +
+      theme_minimal() +
+      scale_fill_manual(values = c("tomato", "skyblue"))
+  )
+}
+```
+# Scatter plots for each continuous variable against BMI, colored by PCOS status
+```{r}
+# Convert PCOS..Y.N. in data_cleaned to a factor
+data_cleaned$PCOS..Y.N. <- as.factor(data_cleaned$PCOS..Y.N.)
+
+# Scatter plots for each continuous variable against BMI, colored by PCOS status
+for (col in setdiff(continuous_columns, "BMI")) {
+  print(
+    ggplot(data_cleaned, aes_string(x = "BMI", y = col, color = "PCOS..Y.N.")) +
+      geom_point(size = 2, alpha = 0.7) +
+      labs(title = paste("Relationship between BMI and", col), x = "BMI", y = col) +
+      theme_minimal() +
+      scale_color_manual(values = c("red", "blue"))
+  )
+}
+
+```
+
+
+#Correlation analysis
+```{r}
+# Select only continuous variables for correlation analysis
+continuous_columns <- c("BMI", "I...beta.HCG.mIU.mL.", "FSH.LH", "LH.mIU.mL.", 
+                       "TSH..mIU.L.", "PRL.ng.mL.", "PRG.ng.mL.", "RBS.mg.dl.", 
+                       "BP._Systolic..mmHg.", "BP._Diastolic..mmHg.", "AMH.ng.mL.", 
+                       "II....beta.HCG.mIU.mL.")
+
+# Select the continuous variables data
+data_continuous <- data_cleaned[, continuous_columns]
+
+# Compute correlation matrix
+correlation_matrix <- cor(data_continuous, use = "complete.obs")
+
+```
+```{r}
+print(correlation_matrix)
+```
+## There are no values higher than 0.7 so there are no high corelations in this .No issues with multicollinearity
+
+```
+##Model Building
+
+```{r}
+class(data_cleaned$PCOS..Y.N.)
+
+```
+
+```{r}
+data_cleaned$PCOS..Y.N. <- as.numeric(as.character(data_cleaned$PCOS..Y.N.))
+```
+
+
+```{r}
+model <- lm(PCOS..Y.N. ~ BMI +LH.mIU.mL.+RBS.mg.dl.+ Reg.Exercise.Y.N.+BP._Diastolic..mmHg. , data = data_cleaned)
+summary(model)
+```
+##Interpretation of Coefficients:
+BMI (Body Mass Index)
+LH (Luteinizing Hormone in mIU/mL)
+RBS (Random Blood Sugar in mg/dL)
+Regular Exercise (Reg.Exercise.Y.N.)
+Diastolic Blood Pressure (BP._Diastolic..mmHg.)
+The dependent variable remains PCOS (PCOS..Y.N.), indicating whether a person has PCOS (1 = Yes, 0 = No).
+
+Coefficients:
+Intercept: -0.4815
+The intercept represents the log-odds of having PCOS when all predictors are zero. In this case, it is -0.4815, but this is not typically interpreted on its own because setting all variables to zero might not be realistic in practice.
+
+BMI: 0.02305
+The coefficient for BMI is 0.02305, which means that for each one-unit increase in BMI, the log-odds of having PCOS increase by 0.02305, holding all other variables constant. This suggests that a higher BMI is associated with a higher likelihood of having PCOS.
+
+Interpretation: A one-unit increase in BMI is associated with a small increase in the odds of having PCOS. For example, a person with a BMI of 30 is slightly more likely to have PCOS than someone with a BMI of 25.
+LH.mIU.mL.: 0.0003359
+The coefficient for LH (Luteinizing Hormone) is 0.0003359, indicating that for each one-unit increase in LH, the log-odds of having PCOS increase by 0.0003359, assuming all other variables are constant. This positive association is consistent with what is known about the role of LH in PCOS.
+
+Interpretation: An increase in LH levels slightly increases the likelihood of having PCOS. Elevated LH levels are often observed in women with PCOS.
+RBS.mg.dl.: 0.0007293
+The coefficient for RBS (Random Blood Sugar) is 0.0007293, suggesting that for each one-unit increase in blood sugar (mg/dL), the log-odds of having PCOS increase by 0.0007293. However, the p-value (0.1586) indicates that this effect is not statistically significant.
+
+Interpretation: Blood sugar is positively associated with the likelihood of having PCOS, but the relationship is not statistically significant in this model. This may warrant further investigation with a larger sample size or additional factors considered.
+Reg.Exercise.Y.N.: 0.08376
+The coefficient for Regular Exercise is 0.08376, meaning that engaging in regular exercise increases the log-odds of having PCOS by 0.08376 compared to not exercising regularly. Although exercise is typically beneficial for managing PCOS, this result may be specific to the data or reflect an interaction with other unaccounted factors.
+
+Interpretation: Regular exercise is associated with a slight increase in the odds of having PCOS, but this is counterintuitive. Exercise might help with managing PCOS symptoms, yet this model suggests that those who exercise regularly might have a slightly higher likelihood of having PCOS.
+BP._Diastolic..mmHg.: 0.001664
+The coefficient for Diastolic Blood Pressure is 0.001664, meaning that for each one-unit increase in diastolic blood pressure (in mmHg), the log-odds of having PCOS increase by 0.001664. However, the p-value (0.3155) suggests that this relationship is not statistically significant.
+
+Interpretation: Diastolic blood pressure appears to have a positive but non-significant relationship with PCOS, meaning there is no strong evidence to suggest that diastolic blood pressure is a major predictor of PCOS in this model.
+Model Fit:
+Multiple R-squared: 0.05824
+This value indicates that the model explains only about 5.8% of the variance in PCOS. This is still a relatively low proportion, suggesting that many other factors not included in the model may influence the likelihood of having PCOS.
+
+##1. Model Fit:
+R-squared: 0.05824
+The R-squared value indicates that only 5.82% of the variance in the dependent variable (PCOS) is explained by the model's predictors (BMI, LH, RBS, Reg.Exercise, and BP). This is a relatively low R-squared value, meaning that the model does not explain much of the variability in the outcome variable.
+
+Interpretation: An R-squared value of 0.05824 suggests that the model does not fit the data well and may be missing important predictors or interactions. It might be useful to explore other variables or models to improve the fit.
+
+Adjusted R-squared: 0.05588
+The Adjusted R-squared adjusts for the number of predictors in the model, and it is very close to the R-squared value in this case. This suggests that adding more predictors does not significantly improve the model's explanatory power.
+
+Interpretation: Since the Adjusted R-squared is also low, this further reinforces the conclusion that the model is not a good fit for predicting PCOS and may benefit from further refinement.
+
+2. Statistical Significance of Predictors:
+P-values:
+BMI: p < 2e-16 (Statistically significant)
+LH: p = 7.33e-05 (Statistically significant)
+RBS: p = 0.1586 (Not statistically significant)
+Reg.Exercise: p = 0.000292 (Statistically significant)
+BP_Diastolic: p = 0.3155 (Not statistically significant)
+
+Interpretation:
+
+BMI and LH are highly statistically significant at the 0.05 significance level (both have p-values much lower than 0.05), indicating a strong relationship with PCOS.
+Regular Exercise is also statistically significant (p = 0.000292), suggesting that it has an impact on the likelihood of having PCOS in this dataset.RBS and Diastolic Blood Pressure (BP_Diastolic) have p-values greater than 0.05, indicating that they are not statistically significant predictors in this model. Although there is a positive relationship with PCOS, the evidence is weak and could be a result of other unaccounted factors.
+
+
+```{r}
+# Plot 1: Residuals vs Fitted plot (for linear relationship and homoscedasticity)
+plot(model, which = 1)
+
+```
+
+```{r}
+# Plot 2: Normal Q-Q plot (for normality of residuals)
+plot(model, which = 2)
+```
+
+```{r}
+# Plot 3: Scale-Location plot (for homoscedasticity)
+plot(model, which = 3)
+```
+
+```{r}
+# Plot 4: Residuals vs Leverage plot (for outliers and influential points)
+plot(model, which = 5)
+```
+
+### Summary of Results:
+
+1. Model Overview:
+   The multiple linear regression model investigates the relationship between the presence of PCOS (`PCOS..Y.N.`) and several independent variables: BMI, LH.mIU.mL., RBS.mg.dl., Regular Exercise (`Reg.Exercise.Y.N.`), and Diastolic Blood Pressure (`BP._Diastolic..mmHg.`).
+
+2. Strength and Direction of Relationships:
+   - BMI: A positive relationship is observed between BMI and the likelihood of having PCOS, with a coefficient of 0.02305. This suggests that as BMI increases, the probability of having PCOS also increases.
+   - LH.mIU.mL.: Similarly, a positive relationship exists between LH levels and PCOS, with a coefficient of 0.0003359. Higher LH levels increase the likelihood of PCOS.
+   - RBS.mg.dl. (Random Blood Sugar): The relationship between RBS and PCOS is not statistically significant, as indicated by the p-value 0.158566, suggesting that RBS may not be a strong predictor of PCOS in this model.
+   - Regular Exercise: Regular exercise has a significant positive relationship with PCOS (coefficient 0.08376). This implies that individuals who engage in regular exercise are more likely to have PCOS, although further investigation may be needed to understand this finding.
+   - BP._Diastolic..mmHg.: The relationship between diastolic blood pressure and PCOS is not statistically significant (p-value 0.315476), suggesting it does not strongly predict PCOS in this model.
+
+3. Model Fit (R-squared and Adjusted R-squared):
+   - R-squared: 0.05824, indicating that only about 5.8% of the variance in the dependent variable (PCOS status) is explained by the independent variables.
+   - Adjusted R-squared: 0.05588, which slightly adjusts for the number of predictors in the model. This value also indicates that the model does not explain much of the variability in PCOS.
+
+4. Statistical Significance:
+   - BMI, LH.mIU.mL., and Regular Exerciseare statistically significant predictors (p-values < 0.05).
+   - RBS and Diastolic Blood Pressure are not statistically significant (p-values > 0.05), meaning these factors do not contribute significantly to predicting PCOS based on this model.
+
+### Limitations of the Model:
+
+1. Low Explained Variance (R-squared): The R-squared value of 0.05824 suggests that the model explains only a small proportion of the variance in PCOS. This indicates that other important factors are likely missing from the model.
+2. Insignificant Predictors: Variables like RBS and Diastolic Blood Pressure are not significant, suggesting they may not be relevant in predicting PCOS in this specific dataset. However, they could be useful in larger or more specific datasets.
+3. Potential Omitted Variables: There might be other factors influencing PCOS that are not included in this model, such as hormonal levels (e.g., FSH, estrogen), genetics, diet, or lifestyle factors not captured in the dataset.
+
+### Conclusion:
+
+The regression analysis indicates that BMI, LH levels, and regular exercise** are significant predictors of PCOS status, with positive relationships between these variables and the likelihood of having PCOS. However, the model's low R-squared value suggests that other factors not included in the analysis may play a role in determining PCOS. 
+
+### Suggested Improvements and Future Analyses:
+
+1. Include Additional Predictors: Future analyses could incorporate other potential predictors such as genetic factors, hormonal imbalances, diet, and age. A more comprehensive dataset could help improve the model’s explanatory power.
+2.Outlier detection : Outliers are most common reason for low performance and wrong analysis removing outliers can significantly improve the model performance.
+3. Interaction Terms: Adding interaction terms between predictors (e.g., BMI and exercise) may reveal more nuanced relationships that contribute to PCOS risk.
+4. Increase Sample Size: A larger dataset could potentially provide more robust results and allow for the inclusion of more variables, improving the model's predictive performance.
+5. Feature Engineering: Consider transforming variables (e.g., log-transformation for skewed variables) or creating new features to enhance the model’s ability to predict PCOS.
+

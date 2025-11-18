@@ -1,0 +1,102 @@
+---
+title: "Chi squared test"
+author: "Sathya"
+date: "2024-12-04"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## LOading the dataset
+
+```{r}
+data <- read.csv("C:/Users/DELL/Downloads/archive (21)/PCOS_extended_dataset.csv")
+head(data)
+```
+
+## Describing the variables 
+PCOS..Y.N.is used to find the presence of PCOS zero means the absence and one means presence of PCOS.
+Hair. loss.Y.N.is used to find the presence of hairloss zero means the absence and one means presence of hairloss.
+##Summarizing the variables
+
+```{r}
+# Summarize levels and frequencies for PCOS
+pcos_summary <- table(data$`PCOS..Y.N.`)
+print(paste("PCOS (Y/N) Levels and Frequencies:"))
+for (level in names(pcos_summary)) {
+  print(paste(level, ":", pcos_summary[level]))
+}
+
+# Summarize levels and frequencies for Hairloss
+hairloss_summary <- table(data$`Hair.loss.Y.N.`)
+print(paste("Hairloss (Y/N) Levels and Frequencies:"))
+for (level in names(hairloss_summary)) {
+  print(paste(level, ":", hairloss_summary[level]))
+}
+```
+##Printing frequency tables
+```{r}
+# Frequency tables
+pcos_freq <- table(data$`PCOS..Y.N.`)
+hairloss_freq <- table(data$`Hair.loss.Y.N.`)
+
+# Print frequencies
+print("PCOS Frequency Table:")
+print(pcos_freq)
+
+
+print("Hairloss Frequency Table:")
+print(hairloss_freq)
+
+```
+##Visualizations using bar plots 
+```{r}
+barplot(pcos_freq, 
+        main = "Distribution of PCOS", 
+        xlab = "PCOS (Y/N)", 
+        ylab = "Count", 
+        col = "orange", 
+        ylim = c(0, max(pcos_freq) + 10))
+```
+
+```{r}
+barplot(hairloss_freq, 
+        main = "Distribution of Hairloss", 
+        xlab = "Hairfall (Y/N)", 
+        ylab = "Count", 
+        col = "skyblue", 
+        ylim = c(0, max(hairloss_freq) + 10))
+```
+##Hypothesis:
+Null Hypothesis (H₀): There is no relationship between PCOS and the hairloss.PCOS doesn't cause hairloss (the two variables are independent).
+Alternative Hypothesis (H₁): There is a relationship between PCOS and the hairloss.PCOS can likely cause the hairloss (the two variables are not independent).
+
+```{r}
+# Create a contingency table
+contingency_table <- table(data$`PCOS..Y.N.`, data$`Hair.loss.Y.N.`)
+print("Contingency Table:")
+print(contingency_table)
+```
+
+```{r}
+# Perform Chi-Square Test of Independence
+chi_square_result <- chisq.test(contingency_table)
+
+# Output the test result
+print("Chi-Square Test Result:")
+print(chi_square_result)
+```
+so the x-square = 65.726 , df =1 and p-value is 5.183e-16
+
+Conclusion:Since the p-value (5.183×10 −16 ) is significantly less than 0.05, reject the null hypothesis (H₀).
+
+Implications:
+So,There is very strong statistical evidence to suggest a relationship between PCOS and hairloss.
+This means that having PCOS is significantly associated with the hairloss.
+
+Reflections:
+The Chi-Square test revealed a significant relationship between PCOS (Polycystic Ovary Syndrome) and Hairloss in the dataset, as evidenced by a very low p-value (p<0.05) and a high Chi-Square statistic (65.726). This indicates that the occurrence of hair loss is not independent of the presence of PCOS, suggesting a meaningful association between these two variables.The contingency table likely showed an uneven distribution of hair loss between individuals with and without PCOS. This uneven distribution reinforces the observed relationship, with a higher proportion of individuals with PCOS reporting hair loss.
+If the majority of the individuals with PCOS have reported hair loss, it validates the connection between these two factors.
