@@ -1,4 +1,4 @@
-
+**PCOD DATA ANALYSIS**
 This project focuses on analyzing a dataset related to Polycystic Ovarian Disease (PCOD), aiming to understand how physiological, lifestyle, and demographic factors influence the condition. The analysis includes data cleaning, exploratory data analysis, and visualization of key variables such as hormonal levels, menstrual cycle patterns, BMI, insulin resistance indicators, and symptoms commonly associated with PCOD. By examining correlations and identifying patterns in the dataset, the project highlights important predictors and risk factors that may contribute to the diagnosis or severity of PCOD.
 
 The goal of this work is to transform raw clinical and lifestyle data into meaningful insights that support better understanding and awareness of PCOD. Through statistical summaries, plots, and comparative analysis, the project provides clarity on how different factors interact and impact women’s reproductive and metabolic health. This analysis can serve as a foundation for clinical decision-making, health education, or future predictive modeling related to PCOD management and early detection.
